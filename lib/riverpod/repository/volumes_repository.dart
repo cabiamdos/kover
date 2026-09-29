@@ -62,6 +62,7 @@ class const VolumesRepository({
   Stream<List<VolumeModel>> watchVolumes({
     required int seriesId,
     bool hideRead = false,
+    bool downloadedOnly = false,
     String query = '',
     OrderedSortOption orderBy = .sortOrder,
     SortDirection direction = .ascending,
@@ -70,6 +71,7 @@ class const VolumesRepository({
         .watchVolumes(
           seriesId: seriesId,
           hideRead: hideRead,
+          downloadedOnly: downloadedOnly,
           query: query,
           orderBy: orderBy,
           direction: direction,
@@ -114,6 +116,22 @@ class const VolumesRepository({
     final volume = await _db.volumesDao.volume(volumeId).getSingleOrNull();
 
     return volume?.chapters.map((c) => c.id).toList() ?? [];
+  }
+
+  /// Watch the ids of all chapters belonging to volume [volumeId].
+  Stream<List<int>> watchChapterIds({required int volumeId}) {
+    return _db.volumesDao
+        .volume(volumeId)
+        .watchSingleOrNull()
+        .map((volume) => volume?.chapters.map((c) => c.id).toList() ?? []);
+  }
+
+  /// Fetch the ids of all chapters belonging to volume [volumeId] from the
+  /// server, without relying on locally synced metadata.
+  Future<List<int>> fetchChapterIds({required int volumeId}) async {
+    final volume = await _client.getVolume(volumeId);
+
+    return volume?.chapters?.map((c) => c.id).whereType<int>().toList() ?? [];
   }
 
   /// Fetch missing covers for all volumes
