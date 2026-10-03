@@ -46,15 +46,11 @@ jobs:
     - name: Build Windows Executable
       run: flutter build windows --release
 
-    # 8. Comprimir la carpeta compilada en un archivo .zip para que sea fácil de descargar
-    - name: Compress Build Output
-      run: |
-        Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath Kover-Windows-x64.zip
-
-    # 9. Subir el archivo empaquetado como un artefacto de GitHub
-    - name: Upload Windows Artifact
+    # 8. Subir los archivos compilados directamente sin comprimir previamente
+    - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
       with:
-        name: Kover-Windows-Executable
-        path: Kover-Windows-x64.zip
+        name: Kover-Windows-v1.0.0
+        path: build\windows\x64\runner\Release\
         if-no-files-found: error
+
